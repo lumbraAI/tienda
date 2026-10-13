@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Priben Home - Tienda Oficial Argentina</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; background-color: #f9fafb; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1f2937; }
+    
+    /* Grid responsive de productos */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+    
+    /* Navbar responsive */
+    .nav-links { display: flex; gap: 20px; font-size: 14px; font-weight: 600; flex-wrap: wrap; }
+    .tagline { display: block; }
+    
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .tagline { display: none; }
+      .header-container { flex-direction: column; gap: 12px; align-items: stretch !important; text-align: center; }
+      .header-container > div { display: flex; justify-content: center; }
+      .modal-content { width: 100% !important; max-width: 100% !important; height: 100vh !important; max-height: 100vh !important; border-radius: 0 !important; padding: 16px !important; }
+    }
+
+    /* Botón flotante de WhatsApp */
+    .whatsapp-float {
+      position: fixed; width: 60px; height: 60px; bottom: 24px; right: 24px;
+      background-color: #25d366; color: #fff; border-radius: 50px; text-align: center;
+      font-size: 32px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2); z-index: 100;
+      display: flex; align-items: center; justify-content: center; text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .whatsapp-float:hover { transform: scale(1.1); }
+    
+    /* Modales y Panel Admin Adaptables */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 10px; }
+    .modal-content { background: #fff; padding: 24px; border-radius: 12px; width: 95%; max-width: 900px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    
+    .admin-form-group { margin-bottom: 12px; }
+    .admin-form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #374151; }
+    .admin-form-group input, .admin-form-group select, .admin-form-group textarea {
+      width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;
+    }
+    .btn-primary { background-color: #d97706; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
+    .btn-secondary { background-color: #4b5563; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
+    .btn-danger { background-color: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; }
+    .btn-edit { background-color: #3b82f6; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; margin-right: 4px; }
+    
+    .tab-btn { padding: 8px 14px; border: none; background: #e5e7eb; cursor: pointer; font-weight: bold; border-radius: 6px 6px 0 0; font-size: 12px; flex: 1; text-align: center; }
+    .tab-btn.active { background: #d97706; color: white; }
+    
+    .admin-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+    .admin-table th, .admin-table td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; vertical-align: middle; }
+    .admin-table th { background-color: #f3f4f6; }
+
+    .stat-card { background: #f3f4f6; padding: 16px; border-radius: 8px; text-align: center; border: 1px solid #e5e7eb; }
+    .stat-card h4 { margin: 0; font-size: 12px; color: #6b7280; text-transform: uppercase; }
+    .stat-card p { margin: 8px 0 0 0; font-size: 20px; font-weight: bold; color: #111827; }
+
+    @media (min-width: 640px) {
+      .btn-primary, .btn-secondary { width: auto; }
+      .stat-card p { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA SUPERIOR -->
+  <div style="background-color: #111827; color: #ffffff; text-align: center; padding: 8px 16px; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+    <span>🇦🇷</span>
+    <span>¡ENVÍOS A TODO EL PAÍS! LLEGAMOS A TODA LA ARGENTINA</span>
+  </div>
+
+  <!-- HEADER -->
+  <header style="background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 50;">
+    <div class="header-container" style="max-width: 1280px; margin: 0 auto; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+      
+      <!-- LOGO CON GESTO ADMIN (4 CLICS) -->
+      <div style="display: flex; align-items: center; gap: 12px; justify-content: center;">
+        <a href="#" id="admin-trigger" style="text-decoration: none; display: flex; align-items: center; cursor: pointer;" title="Priben Home">
+          <svg viewBox="0 0 320 150" style="height: 44px; width: auto; max-width: 100%; display: block;" aria-label="Priben Home Logo">
+            <path d="M 20 82 L 155 12 L 225 61 L 225 35 L 247 35 L 247 76 L 290 106 L 268 116 L 236 93 L 155 37 L 42 116 Z" fill="#e2b007" />
+            <text x="160" y="112" font-family="'Arial Black', 'Impact', sans-serif" font-weight="900" font-size="54" fill="#111827" text-anchor="middle" letter-spacing="1">PRIBEN</text>
+            <text x="160" y="142" font-family="'Arial Black', 'Arial', sans-serif" font-weight="900" font-size="28" fill="#e2b007" text-anchor="middle" letter-spacing="8">HOME</text>
+          </svg>
+        </a>
+        <div class="tagline">
+          <p style="margin: 0; font-size: 11px; color: #6b7280; border-left: 2px solid #e2b007; padding-left: 8px; line-height: 1.2;">Estilo, bienestar y creatividad<br>para tu hogar</p>
+        </div>
+      </div>
+
+      <!-- NAVEGACIÓN DINÁMICA -->
+      <nav class="nav-links" id="nav-categories"></nav>
+
+      <!-- BOTÓN CARRITO -->
+      <div>
+        <button onclick="toggleCartModal()" style="background-color: #d97706; color: #ffffff; border: none; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; width: 100%;">
+          🛒 <span>Carrito</span> (<span id="cart-count">0</span>)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- BANNER HERO -->
+  <section style="background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); color: #ffffff; padding: 40px 16px; text-align: center;">
+    <h2 style="margin: 0 0 10px 0; font-size: 28px; font-weight: 900;">EQUIPÁ TU HOGAR CON LO MEJOR</h2>
+    <p style="margin: 0 auto; max-width: 650px; font-size: 15px; color: #fef3c7;">Aprovechá nuestras super ofertas en vajilla, sets materos y cuidado personal.</p>
+  </section>
+
+  <!-- CONTENEDOR DE PRODUCTOS -->
+  <main id="main-container" style="max-width: 1280px; margin: 30px auto; padding: 0 16px;"></main>
+
+  <!-- MODAL CARRITO -->
+  <div id="cart-modal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px;">
+        <h3 style="margin: 0;">Tu Carrito de Compras</h3>
+        <button onclick="toggleCartModal()" style="background:none; border:none; font-size: 20px; cursor:pointer;">✕</button>
+      </div>
+      <div id="cart-items" style="padding: 16px 0; max-height: 40vh; overflow-y: auto;">
+        <p style="color: #6b7280; text-align: center;">El carrito está vacío</p>
+      </div>
+      <div style="border-top: 1px solid #e5e7eb; padding-top: 12px; display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>Total:</strong> <strong style="font-size: 18px;"><span id="cart-total">$0</span></strong>
+        </div>
+        <button onclick="checkoutWhatsApp()" style="background-color: #25d366; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;">Enviar pedido por WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL LOGIN ADMIN -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content" style="max-width: 350px; text-align: center; height: auto !important;">
+      <h3 style="margin-top:0;">Acceso Administrativo</h3>
+      <p style="font-size: 13px; color: #6b7280;">Ingresá la clave de administrador.</p>
+      <input type="password" id="admin-pass" placeholder="Contraseña (admin123)" style="width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #d1d5db; border-radius: 6px;">
+      <button onclick="verifyAdmin()" class="btn-primary" style="width: 100%;">Ingresar</button>
+    </div>
+  </div>
+
+  <!-- PANEL DE CONTROL ADMIN COMPLETO -->
+  <div id="admin-panel-modal" class="modal">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; margin-bottom: 16px;">
+        <h3 style="margin: 0; color: #111827; font-size: 18px;">Panel de Control</h3>
+        <button onclick="closeAdminPanel()" style="background:none; border:none; font-size: 22px; cursor:pointer;">✕</button>
+      </div>
+
+      <!-- Pestañas responsivas -->
+      <div style="display: flex; gap: 2px; border-bottom: 1px solid #e5e7eb; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;">
+        <button class="tab-btn active" id="tab-btn-form" onclick="switchAdminTab('form')">Producto</button>
+        <button class="tab-btn" id="tab-btn-list" onclick="switchAdminTab('list')">Stock</button>
+        <button class="tab-btn" id="tab-btn-categories" onclick="switchAdminTab('categories')">Categorías</button>
+        <button class="tab-btn" id="tab-btn-finances" onclick="switchAdminTab('finances')">Finanzas</button>
+        <button class="tab-btn" id="tab-btn-json" onclick="switchAdminTab('json')">JSON</button>
+      </div>
+
+      <!-- VISTA 1: FORMULARIO PRODUCTOS -->
+      <div id="tab-form" class="tab-content">
+        <form id="product-form" onsubmit="saveProductFromForm(event)">
+          <input type="hidden" id="form-product-id">
+
+          <div style="display: grid; grid-template-columns: 1fr; sm-grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="admin-form-group">
+              <label>Categoría</label>
+              <select id="form-category" required></select>
+            </div>
+            <div class="admin-form-group">
+              <label>Marca / Subcategoría</label>
+              <input type="text" id="form-brand" placeholder="Ej: Priben Home" required>
+            </div>
+          </div>
+
+          <div class="admin-form-group">
+            <label>Título del Producto</label>
+            <input type="text" id="form-title" placeholder="Ej: Vaso Térmico" required>
+          </div>
+
+          <div class="admin-form-group">
+            <label>Descripción</label>
+            <textarea id="form-desc" rows="2" placeholder="Detalle breve..." required></textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+            <div class="admin-form-group">
+              <label>Precio ($)</label>
+              <input type="number" id="form-price" placeholder="18000" required>
+            </div>
+            <div class="admin-form-group">
+              <label>Costo ($)</label>
+              <input type="number" id="form-cost" placeholder="10000" required>
+            </div>
+            <div class="admin-form-group">
+              <label>Stock</label>
+              <input type="number" id="form-stock" placeholder="15" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="admin-form-group">
+              <label>Foto del Producto</label>
+              <input type="file" id="form-image-file" accept="image/*">
+            </div>
+            <div class="admin-form-group">
+              <label>O Emoji Alternativo</label>
+              <input type="text" id="form-emoji" placeholder="Ej: 🧉">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 16px; flex-direction: column; sm-direction: row;">
+            <button type="submit" class="btn-primary" id="btn-save-form">Guardar Producto</button>
+            <button type="button" class="btn-secondary" onclick="resetForm()">Limpiar</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- VISTA 2: INVENTARIO Y STOCK -->
+      <div id="tab-list" class="tab-content" style="display: none;">
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Img</th>
+                <th>Producto</th>
+                <th>Stock</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="admin-products-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- VISTA 3: GESTIONAR CATEGORÍAS -->
+      <div id="tab-categories" class="tab-content" style="display: none;">
+        <div style="background: #f3f4f6; padding: 14px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="margin-top: 0; color: #111827; font-size: 15px;">Crear Nueva Categoría</h4>
+          <form id="category-form" onsubmit="saveCategory(event)">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div class="admin-form-group" style="margin-bottom:0;">
+                <label>Nombre</label>
+                <input type="text" id="cat-name" placeholder="Ej: Dormitorio" required>
+              </div>
+              <div class="admin-form-group" style="margin-bottom:0;">
+                <label>ID (sin espacios)</label>
+                <input type="text" id="cat-id" placeholder="Ej: dormitorio" required>
+              </div>
+              <div class="admin-form-group" style="margin-bottom:0;">
+                <label>Color Borde</label>
+                <input type="color" id="cat-color" value="#d97706" style="height: 38px;">
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" style="margin-top: 12px;">Añadir Categoría</button>
+          </form>
+        </div>
+
+        <h4 style="color: #111827; font-size: 15px;">Categorías Existentes</h4>
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>ID</th>
+                <th>Prod</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="admin-categories-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- VISTA 4: FINANZAS Y GANANCIAS -->
+      <div id="tab-finances" class="tab-content" style="display: none;">
+        <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px;">
+          <div class="stat-card">
+            <h4>Ventas Registradas</h4>
+            <p id="stat-sales-count">0</p>
+          </div>
+          <div class="stat-card">
+            <h4>Ingresos Brutos</h4>
+            <p id="stat-gross-revenue" style="color: #2563eb;">$0</p>
+          </div>
+          <div class="stat-card">
+            <h4>Ganancia Neta</h4>
+            <p id="stat-net-profit" style="color: #16a34a;">$0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA 5: JSON -->
+      <div id="tab-json" class="tab-content" style="display: none;">
+        <textarea id="json-editor" style="width: 100%; height: 200px; font-family: monospace; font-size: 11px; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;"></textarea>
+        <div style="display: flex; justify-content: flex-end; margin-top: 12px;">
+          <button onclick="saveJsonChanges()" class="btn-primary">Guardar Cambios</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer style="background-color: #111827; color: #9ca3af; padding: 24px 0; margin-top: 40px; text-align: center;">
+    <p style="margin: 0; font-size: 12px;">&copy; 2026 Priben Home. Todos los derechos reservados.</p>
+  </footer>
+
+  <a href="https://wa.me/5491133089977?text=Hola%21%20Quiero%20consultar%20sobre%20Priben%20Home" class="whatsapp-float" target="_blank">💬</a>
+
+  <script>
+    const initialData = [
+      {
+        "id": "cocina",
+        "nombre": "Cocina & Mesa",
+        "bordeColor": "#d97706",
+        "productos": [
+          {
+            "id": 1,
+            "titulo": "Set de Cubiertos con Organizador",
+            "categoria": "Priben Home",
+            "descripcion": "Fabricados en acero inoxidable resistente y duradero.",
+            "precio": 10000,
+            "costo": 6000,
+            "stock": 10,
+            "vendidos": 2,
+            "emoji": "🍴",
+            "imagen": "",
+            "detalles": ["6 Cucharitas, 6 Cucharas", "6 Tenedores, 6 Cuchillos"]
+          }
+        ]
+      },
+      {
+        "id": "tecnologia",
+        "nombre": "Tiempo Libre & Mate",
+        "bordeColor": "#d97706",
+        "productos": [
+          {
+            "id": 2,
+            "titulo": "Vaso Térmico con Parlante Bluetooth",
+            "categoria": "Stanley / Priben Home",
+            "descripcion": "Llevá tu música a todos lados con base parlante.",
+            "precio": 18000,
+            "costo": 11000,
+            "stock": 5,
+            "vendidos": 1,
+            "emoji": "🥛",
+            "imagen": "",
+            "detalles": ["Capacidad: 480 ml", "Acero inoxidable"]
+          }
+        ]
+      }
+    ];
+
+    let tiendaData = JSON.parse(localStorage.getItem('priben_json_data')) || initialData;
+    let carrito = [];
+
+    function saveData() {
+      localStorage.setItem('priben_json_data', JSON.stringify(tiendaData));
+      renderTienda();
+      renderAdminTables();
+      updateFinancialStats();
+    }
+
+    function renderTienda() {
+      const navContainer = document.getElementById('nav-categories');
+      const mainContainer = document.getElementById('main-container');
+      
+      navContainer.innerHTML = '';
+      mainContainer.innerHTML = '';
+
+      tiendaData.forEach(cat => {
+        navContainer.innerHTML += `<a href="#${cat.id}" style="color: #4b5563; text-decoration: none;">${cat.nombre}</a>`;
+
+        let productosHTML = '';
+        if (cat.productos && cat.productos.length > 0) {
+          cat.productos.forEach(prod => {
+            let visualMedia = prod.imagen 
+              ? `<img src="${prod.imagen}" style="width: 100%; height: 100%; object-fit: cover;">`
+              : `<span style="font-size: 54px;">${prod.emoji || '📦'}</span>`;
+
+            let stockBadge = prod.stock > 0 
+              ? `<span style="position: absolute; top: 12px; right: 12px; background-color: #16a34a; color: white; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 4px;">Stock: ${prod.stock}</span>`
+              : `<span style="position: absolute; top: 12px; right: 12px; background-color: #ef4444; color: white; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 4px;">Sin Stock</span>`;
+
+            productosHTML += `
+              <div style="background-color: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="background-color: #f3f4f6; height: 180px; display: flex; align-items: center; justify-content: center; position: relative;">
+                    ${stockBadge}
+                    ${visualMedia}
+                  </div>
+                  <div style="padding: 16px;">
+                    <p style="margin: 0; font-size: 11px; font-weight: bold; color: #d97706; text-transform: uppercase;">${prod.categoria}</p>
+                    <h4 style="margin: 4px 0 0 0; font-size: 16px; font-weight: bold; color: #111827;">${prod.titulo}</h4>
+                    <p style="margin: 6px 0 0 0; font-size: 13px; color: #4b5563;">${prod.descripcion}</p>
+                  </div>
+                </div>
+                <div style="padding: 0 16px 16px 16px; display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                  <div>
+                    <span style="font-size: 11px; color: #9ca3af; display: block;">Precio especial</span>
+                    <span style="font-size: 20px; font-weight: 800; color: #111827;">$${prod.precio.toLocaleString()}</span>
+                  </div>
+                  <button ${prod.stock <= 0 ? 'disabled style="background-color: #9ca3af; cursor: not-allowed;"' : 'onclick="agregarAlCarrito(\''+prod.titulo+'\', '+prod.precio+', '+prod.id+')" style="background-color: #d97706; cursor: pointer;"'} style="color: #ffffff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 500; font-size: 13px;">
+                    ${prod.stock > 0 ? 'Añadir' : 'Agotado'}
+                  </button>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          productosHTML = `<p style="color: #6b7280; font-size: 13px;">No hay productos en esta categoría.</p>`;
+        }
+
+        mainContainer.innerHTML += `
+          <section id="${cat.id}" style="margin-bottom: 36px;">
+            <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; margin-bottom: 16px;">
+              <h3 style="margin: 0; font-size: 20px; font-weight: bold; color: #1f2937; border-left: 4px solid ${cat.bordeColor || '#d97706'}; padding-left: 10px;">${cat.nombre}</h3>
+            </div>
+            <div class="product-grid">${productosHTML}</div>
+          </section>
+        `;
+      });
+    }
+
+    function agregarAlCarrito(titulo, precio, id) {
+      tiendaData.forEach(cat => {
+        if (!cat.productos) return;
+        cat.productos.forEach(prod => {
+          if (prod.id === id) {
+            if (prod.stock > 0) {
+              prod.stock--;
+              prod.vendidos = (prod.vendidos || 0) + 1;
+              let item = carrito.find(i => i.id === id);
+              if (item) { item.cantidad++; } else { carrito.push({ id, titulo, precio, cantidad: 1 }); }
+              saveData();
+              actualizarCarritoUI();
+              alert(`¡Agregado al carrito: ${titulo}!`);
+            } else {
+              alert('No hay más stock disponible.');
+            }
+          }
+        });
+      });
+    }
+
+    function actualizarCarritoUI() {
+      document.getElementById('cart-count').innerText = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+      let cartContainer = document.getElementById('cart-items');
+      let total = 0;
+
+      if (carrito.length === 0) {
+        cartContainer.innerHTML = '<p style="color: #6b7280; text-align: center;">El carrito está vacío</p>';
+        document.getElementById('cart-total').innerText = '$0';
+        return;
+      }
+
+      cartContainer.innerHTML = '';
+      carrito.forEach((item, index) => {
+        let subtotal = item.precio * item.cantidad;
+        total += subtotal;
+        cartContainer.innerHTML += `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px;">
+            <div>
+              <strong>${item.titulo}</strong><br>
+              <span style="color: #6b7280;">$${item.precio.toLocaleString()} x ${item.cantidad}</span>
+            </div>
+            <button onclick="removerItem(${index})" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">✕</button>
+          </div>
+        `;
+      });
+      document.getElementById('cart-total').innerText = `$${total.toLocaleString()}`;
+    }
+
+    function removerItem(index) {
+      let item = carrito[index];
+      tiendaData.forEach(cat => {
+        if (!cat.productos) return;
+        cat.productos.forEach(prod => {
+          if (prod.id === item.id) {
+            prod.stock += item.cantidad;
+            prod.vendidos = Math.max(0, (prod.vendidos || 0) - item.cantidad);
+          }
+        });
+      });
+      carrito.splice(index, 1);
+      saveData();
+      actualizarCarritoUI();
+    }
+
+    function toggleCartModal() {
+      let modal = document.getElementById('cart-modal');
+      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function checkoutWhatsApp() {
+      if (carrito.length === 0) return alert('El carrito está vacío.');
+      let mensaje = "Hola! Quiero realizar el siguiente pedido:\n\n";
+      let total = 0;
+      carrito.forEach(i => {
+        mensaje += `- ${i.cantidad}x ${i.titulo} ($${(i.precio * i.cantidad).toLocaleString()})\n`;
+        total += i.precio * i.cantidad;
+      });
+      mensaje += `\nTotal: $${total.toLocaleString()}`;
+      window.open(`https://wa.me/5491133089977?text=${encodeURIComponent(mensaje)}`, '_blank');
+      carrito = [];
+      actualizarCarritoUI();
+      toggleCartModal();
+    }
+
+    let clickCount = 0;
+    document.getElementById('admin-trigger').addEventListener('click', (e) => {
+      e.preventDefault();
+      clickCount++;
+      if (clickCount === 4) {
+        clickCount = 0;
+        document.getElementById('login-modal').style.display = 'flex';
+      }
+      setTimeout(() => { clickCount = 0; }, 1200);
+    });
+
+    function verifyAdmin() {
+      if (document.getElementById('admin-pass').value === 'admin123') {
+        document.getElementById('login-modal').style.display = 'none';
+        document.getElementById('admin-pass').value = '';
+        openAdminPanel();
+      } else {
+        alert('Contraseña incorrecta (Usa: admin123)');
+      }
+    }
+
+    function openAdminPanel() {
+      populateCategorySelect();
+      renderAdminTables();
+      updateFinancialStats();
+      document.getElementById('json-editor').value = JSON.stringify(tiendaData, null, 2);
+      document.getElementById('admin-panel-modal').style.display = 'flex';
+    }
+
+    function closeAdminPanel() { document.getElementById('admin-panel-modal').style.display = 'none'; }
+
+    function switchAdminTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      document.getElementById(`tab-btn-${tab}`).classList.add('active');
+      document.getElementById(`tab-${tab}`).style.display = 'block';
+    }
+
+    function populateCategorySelect() {
+      const select = document.getElementById('form-category');
+      select.innerHTML = '';
+      tiendaData.forEach(cat => {
+        select.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
+      });
+    }
+
+    function saveCategory(e) {
+      e.preventDefault();
+      const name = document.getElementById('cat-name').value.trim();
+      const id = document.getElementById('cat-id').value.trim().toLowerCase().replace(/\s+/g, '-');
+      const color = document.getElementById('cat-color').value;
+
+      if (tiendaData.some(c => c.id === id)) {
+        alert('Ya existe una categoría con ese ID.');
+        return;
+      }
+
+      tiendaData.push({ id: id, nombre: name, bordeColor: color, productos: [] });
+      saveData();
+      document.getElementById('category-form').reset();
+      alert('¡Categoría creada con éxito!');
+    }
+
+    function deleteCategory(catId) {
+      let cat = tiendaData.find(c => c.id === catId);
+      if (cat && cat.productos && cat.productos.length > 0) {
+        if (!confirm(`La categoría "${cat.nombre}" tiene productos. ¿Deseas eliminarla junto con ellos?`)) return;
+      } else {
+        if (!confirm('¿Eliminar esta categoría?')) return;
+      }
+      tiendaData = tiendaData.filter(c => c.id !== catId);
+      saveData();
+    }
+
+    function renderAdminCategoryTable() {
+      const tbody = document.getElementById('admin-categories-table-body');
+      tbody.innerHTML = '';
+      tiendaData.forEach(cat => {
+        let count = cat.productos ? cat.productos.length : 0;
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${cat.nombre}</strong></td>
+            <td><code>${cat.id}</code></td>
+            <td>${count}</td>
+            <td>
+              <button class="btn-danger" onclick="deleteCategory('${cat.id}')">Eliminar</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function saveProductFromForm(e) {
+      e.preventDefault();
+      const id = document.getElementById('form-product-id').value;
+      const catId = document.getElementById('form-category').value;
+      const brand = document.getElementById('form-brand').value;
+      const title = document.getElementById('form-title').value;
+      const desc = document.getElementById('form-desc').value;
+      const price = parseFloat(document.getElementById('form-price').value);
+      const cost = parseFloat(document.getElementById('form-cost').value) || 0;
+      const stock = parseInt(document.getElementById('form-stock').value) || 0;
+      const emoji = document.getElementById('form-emoji').value || '📦';
+      const fileInput = document.getElementById('form-image-file');
+
+      const categoryObj = tiendaData.find(c => c.id === catId);
+      if (!categoryObj) return alert('Seleccioná una categoría.');
+
+      const processProductData = (imageUrl) => {
+        if (id) {
+          tiendaData.forEach(cat => {
+            if (!cat.productos) return;
+            const index = cat.productos.findIndex(p => p.id == id);
+            if (index !== -1) {
+              const [prod] = cat.productos.splice(index, 1);
+              prod.categoria = brand; prod.titulo = title; prod.descripcion = desc;
+              prod.precio = price; prod.costo = cost; prod.stock = stock; prod.emoji = emoji;
+              if (imageUrl) prod.imagen = imageUrl;
+              categoryObj.productos.push(prod);
+            }
+          });
+        } else {
+          const newProduct = {
+            id: Date.now(), titulo: title, categoria: brand, descripcion: desc,
+            precio: price, costo: cost, stock: stock, vendidos: 0, emoji: emoji,
+            imagen: imageUrl || '', detalles: []
+          };
+          if (!categoryObj.productos) categoryObj.productos = [];
+          categoryObj.productos.push(newProduct);
+        }
+        saveData();
+        resetForm();
+        alert('¡Guardado correctamente!');
+        switchAdminTab('list');
+      };
+
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(uploadEvent) { processProductData(uploadEvent.target.result); };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        let existingImg = '';
+        if (id) {
+          tiendaData.forEach(cat => {
+            if (!cat.productos) return;
+            const found = cat.productos.find(p => p.id == id);
+            if (found) existingImg = found.imagen;
+          });
+        }
+        processProductData(existingImg);
+      }
+    }
+
+    function editProduct(prodId) {
+      let productFound = null, catFoundId = null;
+      tiendaData.forEach(cat => {
+        if (!cat.productos) return;
+        const prod = cat.productos.find(p => p.id == prodId);
+        if (prod) { productFound = prod; catFoundId = cat.id; }
+      });
+      if (!productFound) return;
+
+      document.getElementById('form-product-id').value = productFound.id;
+      document.getElementById('form-category').value = catFoundId;
+      document.getElementById('form-brand').value = productFound.categoria;
+      document.getElementById('form-title').value = productFound.titulo;
+      document.getElementById('form-desc').value = productFound.descripcion;
+      document.getElementById('form-price').value = productFound.precio;
+      document.getElementById('form-cost').value = productFound.costo || 0;
+      document.getElementById('form-stock').value = productFound.stock;
+      document.getElementById('form-emoji').value = productFound.emoji;
+
+      document.getElementById('btn-save-form').innerText = 'Actualizar';
+      switchAdminTab('form');
+    }
+
+    function deleteProduct(prodId) {
+      if (!confirm('¿Eliminar producto?')) return;
+      tiendaData.forEach(cat => {
+        if (cat.productos) cat.productos = cat.productos.filter(p => p.id != prodId);
+      });
+      saveData();
+    }
+
+    function resetForm() {
+      document.getElementById('product-form').reset();
+      document.getElementById('form-product-id').value = '';
+      document.getElementById('btn-save-form').innerText = 'Guardar Producto';
+    }
+
+    function renderAdminTables() {
+      const tbody = document.getElementById('admin-products-table-body');
+      tbody.innerHTML = '';
+      tiendaData.forEach(cat => {
+        if (!cat.productos) return;
+        cat.productos.forEach(prod => {
+          let mediaDisplay = prod.imagen 
+            ? `<img src="${prod.imagen}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;">`
+            : `<span style="font-size: 20px;">${prod.emoji}</span>`;
+
+          tbody.innerHTML += `
+            <tr>
+              <td style="text-align: center;">${mediaDisplay}</td>
+              <td><strong>${prod.titulo}</strong></td>
+              <td><input type="number" value="${prod.stock}" style="width: 50px; padding: 2px;" onchange="updateStock(${prod.id}, this.value)"></td>
+              <td>$${prod.precio.toLocaleString()}</td>
+              <td>
+                <button class="btn-edit" onclick="editProduct(${prod.id})">Editar</button>
+                <button class="btn-danger" onclick="deleteProduct(${prod.id})">X</button>
+              </td>
+            </tr>
+          `;
+        });
+      });
+      renderAdminCategoryTable();
+      populateCategorySelect();
+    }
+
+    function updateStock(prodId, newStock) {
+      tiendaData.forEach(cat => {
+        if (!cat.productos) return;
+        cat.productos.forEach(prod => {
+          if (prod.id == prodId) prod.stock = parseInt(newStock) || 0;
+        });
+      });
+      saveData();
+    }
+
+    function updateFinancialStats() {
+      let totalSalesCount = 0, grossRevenue = 0, netProfit = 0;
+      tiendaData.forEach(cat => {
+        if (!cat.productos) return;
+        cat.productos.forEach(prod => {
+          let vendidos = prod.vendidos || 0;
+          totalSalesCount += vendidos;
+          grossRevenue += (vendidos * (prod.precio || 0));
+          netProfit += (vendidos * ((prod.precio || 0) - (prod.costo || 0)));
+        });
+      });
+      document.getElementById('stat-sales-count').innerText = totalSalesCount;
+      document.getElementById('stat-gross-revenue').innerText = `$${grossRevenue.toLocaleString()}`;
+      document.getElementById('stat-net-profit').innerText = `$${netProfit.toLocaleString()}`;
+    }
+
+    function saveJsonChanges() {
+      try {
+        tiendaData = JSON.parse(document.getElementById('json-editor').value);
+        saveData();
+        closeAdminPanel();
+        alert('¡JSON actualizado!');
+      } catch (err) {
+        alert('Error en el formato JSON.');
+      }
+    }
+
+    renderTienda();
+  </script>
+</body>
+</html>
